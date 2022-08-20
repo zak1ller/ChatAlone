@@ -22,10 +22,16 @@ struct ContentView: View {
 
 extension ContentView {
   var listView: some View {
-    List(viewModel.chats) {
-      ChatRow(chat: $0)
-        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-        .listRowSeparator(.hidden)
+    ScrollViewReader { proxy in
+      ScrollView {
+        ForEach(viewModel.chats, id: \.id) { chat in
+          ChatRow(chat: chat)
+            .id(chat.id)
+        }
+      }
+      .onChange(of: viewModel.chats.last?.id) { _ in
+        proxy.scrollTo(viewModel.chats.last?.id, anchor: .bottom)
+      }
     }
     .listStyle(.plain)
   }
@@ -53,7 +59,6 @@ extension ContentView {
           .padding(.trailing, 8)
         Spacer()
       }
-      
     }
     .frame(maxHeight: 95)
     .fixedSize(horizontal: false, vertical: true)
